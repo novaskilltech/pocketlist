@@ -4,9 +4,10 @@ import { useTranslation, LOCALE_META, Locale } from '../i18n';
 
 interface LandingPageProps {
   onGetStarted: () => void;
+  onNavigate: (type: 'privacy' | 'terms' | 'contact') => void;
 }
 
-export default function LandingPage({ onGetStarted }: LandingPageProps) {
+export default function LandingPage({ onGetStarted, onNavigate }: LandingPageProps) {
   const { t, locale, setLocale } = useTranslation();
 
   return (
@@ -211,9 +212,9 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
             <span className="font-bold">{t('appName')}</span>
           </div>
           <div className="flex gap-8 text-sm text-white/40">
-            <a href="#" className="hover:text-white transition-colors">{t('landing.privacy')}</a>
-            <a href="#" className="hover:text-white transition-colors">{t('landing.terms')}</a>
-            <a href="#" className="hover:text-white transition-colors">{t('landing.contact')}</a>
+            <button onClick={() => onNavigate('privacy')} className="hover:text-white transition-colors">{t('landing.privacy')}</button>
+            <button onClick={() => onNavigate('terms')} className="hover:text-white transition-colors">{t('landing.terms')}</button>
+            <button onClick={() => onNavigate('contact')} className="hover:text-white transition-colors">{t('landing.contact')}</button>
           </div>
           <div className="text-sm text-white/20">{t('landing.copyright')}</div>
         </div>
