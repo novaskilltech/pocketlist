@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Plus, Trash2, Check, RotateCcw, ChevronRight, LogOut, User as UserIcon, Crown, Sparkles, Loader2, Share2, Globe, Search } from 'lucide-react';
+import { Plus, Trash2, Check, RotateCcw, ChevronRight, LogOut, User as UserIcon, Crown, Sparkles, Loader2, Share2, Globe, Search, UtensilsCrossed } from 'lucide-react';
 import { User, List, Item } from '../types';
 import { getEssentialsCategories } from '../constants';
 import { useTranslation, LOCALE_META, Locale } from '../i18n';
@@ -29,6 +29,8 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [showConfetti, setShowConfetti] = useState(false);
   const [lastBudget, setLastBudget] = useState<string | null>(null);
+  const [recipeMode, setRecipeMode] = useState(false);
+  const [recipeUrl, setRecipeUrl] = useState('');
 
   const essentials = getEssentialsCategories(t);
 
@@ -163,6 +165,28 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
       setGeniusMode(false);
     } catch (err: any) {
       setError("Genius: " + (err.message || "Error"));
+    } finally { setIsGeniusLoading(false); }
+  };
+
+  const handleRecipe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!recipeUrl.trim() || !selectedList) return;
+    setIsGeniusLoading(true);
+    setError('');
+    try {
+      const res = await fetch('/api/recipe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: recipeUrl, listId: selectedList.id, locale }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Erreur recette');
+      setItems([...items, ...data.items]);
+      if (data.budget) setLastBudget(data.budget);
+      setRecipeUrl('');
+      setRecipeMode(false);
+    } catch (err: any) {
+      setError(err.message || 'Error');
     } finally { setIsGeniusLoading(false); }
   };
 
@@ -309,15 +333,53 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
                     className={`w-full px-4 py-3.5 bg-white/5 border rounded-2xl text-white placeholder:text-white/20 focus:ring-2 outline-none transition-all text-base ${geniusMode ? 'border-chartreuse/50 focus:ring-chartreuse pl-10' : 'border-white/10 focus:ring-chartreuse'}`} />
                   {geniusMode && <Sparkles className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-chartreuse animate-pulse" />}
                 </div>
-                <button type="button" onClick={() => setGeniusMode(!geniusMode)}
+                <button type="button" onClick={() => { setGeniusMode(!geniusMode); setRecipeMode(false); }}
                   className={`p-3.5 rounded-2xl transition-all border active:scale-95 ${geniusMode ? 'bg-chartreuse/20 border-chartreuse text-chartreuse' : 'bg-white/5 border-white/10 text-white/40 hover:text-chartreuse'}`}
                   title={t('landing.genius')}>
                   <Sparkles className="w-6 h-6" />
+                </button>
+                <button type="button" onClick={() => { setRecipeMode(!recipeMode); setGeniusMode(false); }}
+                  className={`p-3.5 rounded-2xl transition-all border active:scale-95 ${recipeMode ? 'bg-orange-400/20 border-orange-400 text-orange-400' : 'bg-white/5 border-white/10 text-white/40 hover:text-orange-400'}`}
+                  title={t('dash.recipeTitle')}>
+                  <UtensilsCrossed className="w-6 h-6" />
                 </button>
                 <button disabled={isGeniusLoading} className="bg-chartreuse text-gunmetal p-3.5 rounded-2xl font-bold hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-chartreuse/20 disabled:opacity-50">
                   {isGeniusLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Plus className="w-6 h-6" />}
                 </button>
               </form>
+
+              {/* Recipe URL Input */}
+              <AnimatePresence>
+                {recipeMode && (
+                  <motion.form
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    onSubmit={handleRecipe}
+                    className="overflow-hidden"
+                  >
+                    <div className="flex gap-2 pt-1">
+                      <div className="relative flex-1">
+                        <UtensilsCrossed className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-orange-400" />
+                        <input
+                          type="url"
+                          value={recipeUrl}
+                          onChange={(e) => setRecipeUrl(e.target.value)}
+                          placeholder={t('dash.recipePlaceholder')}
+                          className="w-full pl-10 pr-4 py-3 bg-white/5 border border-orange-400/30 rounded-2xl text-white placeholder:text-white/20 focus:ring-2 focus:ring-orange-400/50 outline-none transition-all text-sm"
+                        />
+                      </div>
+                      <button
+                        type="submit"
+                        disabled={isGeniusLoading || !recipeUrl.trim()}
+                        className="bg-orange-400 text-gunmetal px-5 py-3 rounded-2xl font-bold hover:brightness-110 active:scale-95 transition-all disabled:opacity-50"
+                      >
+                        {isGeniusLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : t('dash.recipeExtract')}
+                      </button>
+                    </div>
+                  </motion.form>
+                )}
+              </AnimatePresence>
 
               {error && <p className="text-red-400 text-sm">{error}</p>}
 

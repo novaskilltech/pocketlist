@@ -308,6 +308,70 @@ async function startServer() {
     }
   });
 
+  // Recipe URL → extract ingredients via Gemini
+  app.post("/api/recipe", authGuard, async (req: any, res) => {
+    const { url, listId, locale } = req.body;
+    if (!url || !listId) return res.status(400).json({ error: "url and listId are required" });
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) return res.status(500).json({ error: "GEMINI_API_KEY not configured on server" });
+
+    const langMap: Record<string, string> = {
+      fr: 'français', en: 'English', es: 'español', ar: 'العربية', it: 'italiano', nl: 'Nederlands'
+    };
+    const lang = langMap[locale] || 'français';
+
+    try {
+      // Fetch the recipe page
+      const pageRes = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 PocketList/1.0' } });
+      if (!pageRes.ok) return res.status(400).json({ error: "Could not fetch the recipe URL" });
+      const html = await pageRes.text();
+      // Extract text content (strip HTML tags, limit to 8000 chars)
+      const textContent = html.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<style[\s\S]*?<\/style>/gi, '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 8000);
+
+      const ai = new GoogleGenAI({ apiKey });
+      const response = await ai.models.generateContent({
+        model: "gemini-2.0-flash",
+        contents: `Extract the recipe ingredients from this page content and create a grocery list. For each ingredient, specify name, quantity, and estimated price in euros.\n\nPage content:\n${textContent}\n\nRespond ONLY with a JSON array of { name: string, quantity: string, price: string }. Write ALL names in ${lang}.`,
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                name: { type: Type.STRING },
+                quantity: { type: Type.STRING },
+                price: { type: Type.STRING }
+              },
+              required: ["name", "quantity", "price"]
+            }
+          }
+        }
+      });
+
+      const generatedItems: { name: string; quantity: string; price: string }[] = JSON.parse(response.text || '[]');
+      if (generatedItems.length === 0) return res.status(400).json({ error: "No ingredients found" });
+
+      const addedItems: any[] = [];
+      let totalBudget = 0;
+      for (const genItem of generatedItems) {
+        const id = uuidv4();
+        const qty = genItem.price ? `${genItem.quantity} · ~${genItem.price}€` : genItem.quantity;
+        db.prepare("INSERT INTO items (id, list_id, name, quantity) VALUES (?, ?, ?, ?)").run(id, listId, genItem.name, qty);
+        const item = db.prepare("SELECT * FROM items WHERE id = ?").get(id);
+        addedItems.push(item);
+        broadcast(listId, { type: "ITEM_ADDED", item });
+        totalBudget += parseFloat(genItem.price) || 0;
+      }
+
+      res.json({ items: addedItems, budget: totalBudget.toFixed(2) });
+    } catch (err: any) {
+      console.error("Recipe API error:", err);
+      res.status(500).json({ error: err.message || "Error extracting recipe" });
+    }
+  });
+
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({ server: { middlewareMode: true }, appType: "spa" });
     app.use(vite.middlewares);
