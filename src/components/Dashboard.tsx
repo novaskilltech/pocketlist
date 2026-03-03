@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Plus, Trash2, Check, RotateCcw, ChevronRight, LogOut, User as UserIcon, Crown, Sparkles, Loader2, Share2, Globe, Search, UtensilsCrossed, Leaf } from 'lucide-react';
+import { Plus, Trash2, Check, RotateCcw, ChevronRight, LogOut, User as UserIcon, Crown, Sparkles, Loader2, Share2, Globe, Search, UtensilsCrossed, Leaf, Repeat } from 'lucide-react';
 import { User, List, Item } from '../types';
 import { getEssentialsCategories } from '../constants';
 import { useTranslation, LOCALE_META, Locale } from '../i18n';
@@ -135,6 +135,20 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
   const resetList = async () => {
     if (!selectedList) return;
     try { await fetch(`/api/lists/${selectedList.id}/reset`, { method: 'POST' }); setItems(items.map(i => ({ ...i, is_checked: false }))); } catch { }
+  };
+
+  const toggleRecurrence = async () => {
+    if (!selectedList) return;
+    try {
+      const res = await fetch(`/api/lists/${selectedList.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_recurrent: !selectedList.is_recurrent }),
+      });
+      const data = await res.json();
+      setSelectedList(data);
+      setLists(lists.map(l => l.id === data.id ? data : l));
+    } catch { }
   };
 
   const shareOnWhatsApp = () => {
@@ -313,7 +327,10 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
               <div className="grid gap-3">
                 {lists.map(list => (
                   <button key={list.id} onClick={() => setSelectedList(list)} className="flex items-center justify-between p-5 bg-white/5 border border-white/10 rounded-3xl hover:border-chartreuse/50 transition-all text-left group">
-                    <span className="font-bold text-lg group-hover:text-chartreuse transition-colors">{list.name}</span>
+                    <div className="flex items-center gap-3">
+                      <span className="font-bold text-lg group-hover:text-chartreuse transition-colors">{list.name}</span>
+                      {list.is_recurrent && <span className="text-[10px] font-bold bg-white/10 text-white/60 px-2 py-0.5 rounded-full uppercase tracking-wider">{t('dash.templateBadge')}</span>}
+                    </div>
                     <div className="flex items-center gap-3">
                       <Trash2 className="w-5 h-5 text-white/20 hover:text-red-500 transition-colors sm:opacity-0 sm:group-hover:opacity-100" onClick={(e) => deleteList(list.id, e)} />
                       <ChevronRight className="w-5 h-5 text-white/20 group-hover:text-chartreuse transition-colors" />
@@ -330,9 +347,10 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
                 </button>
                 <h2 className="text-xl font-bold text-chartreuse">{selectedList.name}</h2>
                 <div className="flex items-center gap-1">
+                  <button onClick={toggleRecurrence} className={`p-2 transition-colors ${selectedList.is_recurrent ? 'text-chartreuse' : 'text-white/20 hover:text-white/40'}`} title={t('dash.recurrentTitle')}><Repeat className="w-5 h-5" /></button>
                   <button onClick={() => setShowShareModal(true)} className="p-2 text-white/40 hover:text-chartreuse transition-colors" title={t('dash.shareTitle')}><Crown className="w-5 h-5" /></button>
                   <button onClick={shareOnWhatsApp} className="p-2 text-white/40 hover:text-[#25D366] transition-colors" title="WhatsApp"><Share2 className="w-5 h-5" /></button>
-                  <button onClick={resetList} className="p-2 text-white/40 hover:text-chartreuse transition-colors"><RotateCcw className="w-5 h-5" /></button>
+                  <button onClick={resetList} className="p-2 text-white/20 hover:text-chartreuse transition-colors"><RotateCcw className="w-5 h-5" /></button>
                 </div>
               </div>
 
@@ -400,8 +418,8 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
                     type="button"
                     onClick={() => setDietFilter(dietFilter === diet.id ? null : diet.id)}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all active:scale-95 border ${dietFilter === diet.id
-                        ? 'bg-green-400/20 border-green-400 text-green-400'
-                        : 'bg-white/5 border-white/10 text-white/50 hover:border-white/20'
+                      ? 'bg-green-400/20 border-green-400 text-green-400'
+                      : 'bg-white/5 border-white/10 text-white/50 hover:border-white/20'
                       }`}
                   >
                     <span>{diet.emoji}</span>

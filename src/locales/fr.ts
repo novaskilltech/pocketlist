@@ -62,6 +62,8 @@ const fr: Record<string, string> = {
     'dash.geniusPlaceholder': 'Ex: Ingrédients pour une pizza...',
     'dash.searchPlaceholder': 'Rechercher un article...',
     'dash.budgetLabel': 'Budget estimé (Genius)',
+    'dash.recurrentTitle': 'Mode récurrent (Modèle)',
+    'dash.templateBadge': 'Modèle',
     'dash.recipeTitle': 'Mode recette',
     'dash.recipePlaceholder': 'Coller un lien de recette...',
     'dash.recipeExtract': 'Extraire',

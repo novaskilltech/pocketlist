@@ -30,6 +30,8 @@ const nl: Record<string, string> = {
     'dash.geniusPlaceholder': 'Bijv.: Ingrediënten voor een pizza...',
     'dash.searchPlaceholder': 'Zoek een artikel...',
     'dash.budgetLabel': 'Geschat budget (Genius)',
+    'dash.recurrentTitle': 'Herhalingsmodus (Sjabloon)',
+    'dash.templateBadge': 'Sjabloon',
     'dash.recipeTitle': 'Receptmodus',
     'dash.recipePlaceholder': 'Plak een recept-URL...',
     'dash.recipeExtract': 'Extraheren',

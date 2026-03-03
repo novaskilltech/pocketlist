@@ -64,8 +64,10 @@ db.exec(`
     name TEXT NOT NULL,
     share_token TEXT UNIQUE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    is_recurrent BOOLEAN DEFAULT 0,
     FOREIGN KEY(user_id) REFERENCES users(id)
   );
+  try { db.exec("ALTER TABLE lists ADD COLUMN is_recurrent BOOLEAN DEFAULT 0"); } catch (e) {}
   CREATE TABLE IF NOT EXISTS list_members (
     list_id TEXT NOT NULL,
     user_id TEXT NOT NULL,
@@ -240,6 +242,16 @@ async function startServer() {
   app.delete("/api/lists/:id", authGuard, (req: any, res) => {
     db.prepare("DELETE FROM lists WHERE id = ? AND user_id = ?").run(req.params.id, req.user.id);
     res.json({ success: true });
+  });
+  app.patch("/api/lists/:id", authGuard, (req: any, res) => {
+    const { name, is_recurrent } = req.body;
+    if (name !== undefined) {
+      db.prepare("UPDATE lists SET name = ? WHERE id = ? AND user_id = ?").run(name, req.params.id, req.user.id);
+    }
+    if (is_recurrent !== undefined) {
+      db.prepare("UPDATE lists SET is_recurrent = ? WHERE id = ? AND user_id = ?").run(is_recurrent ? 1 : 0, req.params.id, req.user.id);
+    }
+    res.json(db.prepare("SELECT * FROM lists WHERE id = ?").get(req.params.id));
   });
   app.post("/api/lists/:id/reset", authGuard, (req: any, res) => {
     db.prepare("UPDATE items SET is_checked = 0 WHERE list_id = ?").run(req.params.id);

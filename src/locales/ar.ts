@@ -30,6 +30,8 @@ const ar: Record<string, string> = {
     'dash.geniusPlaceholder': 'مثال: مكونات البيتزا...',
     'dash.searchPlaceholder': 'البحث عن منتج...',
     'dash.budgetLabel': 'الميزانية المقدرة (العبقري)',
+    'dash.recurrentTitle': 'وضع التكرار (نموذج)',
+    'dash.templateBadge': 'نموذج',
     'dash.recipeTitle': 'وضع الوصفة',
     'dash.recipePlaceholder': 'ألصق رابط وصفة...',
     'dash.recipeExtract': 'استخراج',

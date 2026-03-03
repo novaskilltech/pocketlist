@@ -9,6 +9,7 @@ export interface List {
   id: string;
   name: string;
   created_at: string;
+  is_recurrent: boolean;
 }
 
 export interface Item {
