@@ -4,6 +4,7 @@ import { Plus, Trash2, Check, RotateCcw, ChevronRight, LogOut, User as UserIcon,
 import { User, List, Item } from '../types';
 import { getEssentialsCategories } from '../constants';
 import { useTranslation, LOCALE_META, Locale } from '../i18n';
+import Confetti from './Confetti';
 
 interface DashboardProps {
   user: User;
@@ -26,6 +27,7 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
   const [showShareModal, setShowShareModal] = useState(false);
   const [showLangMenu, setShowLangMenu] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showConfetti, setShowConfetti] = useState(false);
 
   const essentials = getEssentialsCategories(t);
 
@@ -103,7 +105,12 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
     try {
       const res = await fetch(`/api/items/${item.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ is_checked: !item.is_checked }) });
       const data = await res.json();
-      setItems(items.map(i => i.id === item.id ? data : i));
+      const newItems = items.map(i => i.id === item.id ? data : i);
+      setItems(newItems);
+      // Confetti when all items are checked
+      if (newItems.length > 0 && newItems.every(i => i.is_checked) && !item.is_checked) {
+        setShowConfetti(true);
+      }
     } catch { }
   };
 
@@ -388,6 +395,7 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
           )}
         </AnimatePresence>
       </main>
+      {showConfetti && <Confetti onComplete={() => setShowConfetti(false)} />}
     </div>
   );
 }
