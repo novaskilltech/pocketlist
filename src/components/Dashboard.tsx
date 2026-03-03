@@ -42,6 +42,20 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
     { id: 'lactose-free', emoji: '🥛', labelKey: 'diet.lactoseFree' },
   ];
 
+  const FORBIDDEN_KEYWORDS: Record<string, string[]> = {
+    'halal': ['porc', 'pork', 'lard', 'saucisse de francfort', 'saucisse de montbéliard', 'jambon', 'bacon', 'charcuterie', 'vin', 'alcool', 'beer', 'wine', 'choucroute'],
+    'vegan': ['lait', 'milk', 'beurre', 'butter', 'fromage', 'cheese', 'oeuf', 'egg', 'yaourt', 'yogurt', 'crème', 'cream', 'miel', 'honey', 'viande', 'meat', 'poulet', 'chicken', 'boeuf', 'beef', 'poisson', 'fish', 'porc', 'pork', 'lard', 'bacon', 'jambon'],
+    'vegetarian': ['viande', 'meat', 'poulet', 'chicken', 'boeuf', 'beef', 'poisson', 'fish', 'porc', 'pork', 'lard', 'bacon', 'jambon', 'charcuterie'],
+    'gluten-free': ['pain', 'bread', 'pâtes', 'pasta', 'farine', 'flour', 'biscuits', 'cookies', 'gâteau', 'cake', 'pizza', 'bière', 'beer', 'semoule', 'couscous'],
+    'lactose-free': ['lait', 'milk', 'beurre', 'butter', 'crème', 'cream', 'yaourt', 'yogurt', 'fromage', 'cheese'],
+  };
+
+  const isItemAllowed = (name: string) => {
+    if (!dietFilter || !FORBIDDEN_KEYWORDS[dietFilter]) return true;
+    const lowerName = name.toLowerCase();
+    return !FORBIDDEN_KEYWORDS[dietFilter].some(keyword => lowerName.includes(keyword));
+  };
+
   const essentials = getEssentialsCategories(t);
 
   useEffect(() => {
@@ -479,15 +493,17 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
                   {activeEssentialCategory && (
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
                       <div className="flex flex-wrap gap-2 p-4 bg-white/5 rounded-2xl border border-white/10">
-                        {essentials.find(c => c.id === activeEssentialCategory)?.items.map((itemName: string) => {
-                          const isAlready = items.some(i => i.name.toLowerCase() === itemName.toLowerCase());
-                          return (
-                            <button key={itemName} disabled={isAlready} onClick={() => addEssentialItem(itemName)}
-                              className={`px-4 py-2 rounded-lg text-sm transition-all active:scale-95 ${isAlready ? 'bg-white/5 text-white/20 cursor-not-allowed' : 'bg-white/10 text-white hover:bg-chartreuse hover:text-gunmetal'}`}>
-                              {itemName}
-                            </button>
-                          );
-                        })}
+                        {essentials.find(c => c.id === activeEssentialCategory)?.items
+                          .filter((itemName: string) => isItemAllowed(itemName))
+                          .map((itemName: string) => {
+                            const isAlready = items.some(i => i.name.toLowerCase() === itemName.toLowerCase());
+                            return (
+                              <button key={itemName} disabled={isAlready} onClick={() => addEssentialItem(itemName)}
+                                className={`px-4 py-2 rounded-lg text-sm transition-all active:scale-95 ${isAlready ? 'bg-white/5 text-white/20 cursor-not-allowed' : 'bg-white/10 text-white hover:bg-chartreuse hover:text-gunmetal'}`}>
+                                {itemName}
+                              </button>
+                            );
+                          })}
                       </div>
                     </motion.div>
                   )}
@@ -495,19 +511,22 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
               </div>
 
               <div className="grid gap-2">
-                {items.filter(item => !searchQuery || item.name.toLowerCase().includes(searchQuery.toLowerCase())).map(item => (
-                  <button key={item.id} onClick={() => toggleItem(item)}
-                    className={`flex items-center gap-4 p-4 rounded-2xl transition-all text-left group active:scale-[0.98] ${item.is_checked ? 'bg-white/5' : 'bg-white/5 border border-white/10 hover:border-chartreuse/30'}`}>
-                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${item.is_checked ? 'bg-chartreuse border-chartreuse' : 'border-white/20 group-hover:border-chartreuse/50'}`}>
-                      {item.is_checked && <Check className="w-4 h-4 text-gunmetal" />}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className={`font-medium transition-all ${item.is_checked ? 'line-through text-chartreuse/60' : 'text-white'}`}>{item.name}</p>
-                      {item.quantity && <p className={`text-xs ${item.is_checked ? 'text-white/10' : 'text-white/40'}`}>{item.quantity}</p>}
-                    </div>
-                    <button onClick={(e) => deleteItem(item.id, e)} className="p-2 text-white/20 hover:text-red-500 transition-colors sm:opacity-0 sm:group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
-                  </button>
-                ))}
+                {items
+                  .filter(item => isItemAllowed(item.name))
+                  .filter(item => !searchQuery || item.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                  .map(item => (
+                    <button key={item.id} onClick={() => toggleItem(item)}
+                      className={`flex items-center gap-4 p-4 rounded-2xl transition-all text-left group active:scale-[0.98] ${item.is_checked ? 'bg-white/5' : 'bg-white/5 border border-white/10 hover:border-chartreuse/30'}`}>
+                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${item.is_checked ? 'bg-chartreuse border-chartreuse' : 'border-white/20 group-hover:border-chartreuse/50'}`}>
+                        {item.is_checked && <Check className="w-4 h-4 text-gunmetal" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className={`font-medium transition-all ${item.is_checked ? 'line-through text-chartreuse/60' : 'text-white'}`}>{item.name}</p>
+                        {item.quantity && <p className={`text-xs ${item.is_checked ? 'text-white/10' : 'text-white/40'}`}>{item.quantity}</p>}
+                      </div>
+                      <button onClick={(e) => deleteItem(item.id, e)} className="p-2 text-white/20 hover:text-red-500 transition-colors sm:opacity-0 sm:group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
+                    </button>
+                  ))}
               </div>
             </motion.div>
           )}
