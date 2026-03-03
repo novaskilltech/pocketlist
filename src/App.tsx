@@ -3,6 +3,7 @@ import Auth from './components/Auth';
 import Dashboard from './components/Dashboard';
 import LandingPage from './components/LandingPage';
 import { User } from './types';
+import { I18nProvider } from './i18n';
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -35,17 +36,15 @@ export default function App() {
     );
   }
 
-  if (user) {
-    return <Dashboard user={user} onLogout={() => setUser(null)} />;
-  }
-
   return (
-    <>
-      {showAuth ? (
+    <I18nProvider>
+      {user ? (
+        <Dashboard user={user} onLogout={() => setUser(null)} />
+      ) : showAuth ? (
         <Auth onLogin={(u) => setUser(u)} onBack={() => setShowAuth(false)} />
       ) : (
         <LandingPage onGetStarted={() => setShowAuth(true)} />
       )}
-    </>
+    </I18nProvider>
   );
 }

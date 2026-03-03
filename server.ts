@@ -249,17 +249,22 @@ async function startServer() {
 
   // Genius AI Proxy — appelle Gemini côté serveur
   app.post("/api/genius", authGuard, async (req: any, res) => {
-    const { prompt, listId } = req.body;
+    const { prompt, listId, locale } = req.body;
     if (!prompt || !listId) return res.status(400).json({ error: "prompt and listId are required" });
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return res.status(500).json({ error: "GEMINI_API_KEY not configured on server" });
 
+    const langMap: Record<string, string> = {
+      fr: 'français', en: 'English', es: 'español', ar: 'العربية', it: 'italiano', nl: 'Nederlands'
+    };
+    const lang = langMap[locale] || 'français';
+
     try {
       const ai = new GoogleGenAI({ apiKey });
       const response = await ai.models.generateContent({
         model: "gemini-2.0-flash",
-        contents: `Génère une liste de courses détaillée pour : "${prompt}". Pour chaque article, précise le nom et la proportion/quantité nécessaire (ex: "500g", "2 unités", "1 litre"). Réponds uniquement avec un tableau JSON d'objets { name: string, quantity: string }.`,
+        contents: `Generate a detailed grocery list for: "${prompt}". For each item, specify the name and quantity (e.g., "500g", "2 units", "1 liter"). Respond ONLY with a JSON array of objects { name: string, quantity: string }. Write ALL item names and quantities in ${lang}.`,
         config: {
           responseMimeType: "application/json",
           responseSchema: {
