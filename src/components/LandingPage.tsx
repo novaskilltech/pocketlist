@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { Sparkles, Users, Share2, ShoppingBag, ArrowRight, CheckCircle2, Crown } from 'lucide-react';
+import { Sparkles, Users, Share2, ShoppingBag, ArrowRight, CheckCircle2, Crown, UtensilsCrossed, Leaf, Repeat, Wallet, Smartphone, Search } from 'lucide-react';
 import { useTranslation, LOCALE_META, Locale } from '../i18n';
 
 interface LandingPageProps {
@@ -142,20 +142,31 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
             <h2 className="text-4xl font-bold mb-4">{t('landing.featuresTitle')}</h2>
             <p className="text-white/40 max-w-xl mx-auto">{t('landing.featuresDesc')}</p>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               { icon: <Sparkles className="w-6 h-6" />, title: t('landing.genius'), desc: t('landing.geniusDesc') },
+              { icon: <UtensilsCrossed className="w-6 h-6" />, title: t('landing.recipe'), desc: t('landing.recipeDesc') },
+              { icon: <Wallet className="w-6 h-6" />, title: t('landing.budget'), desc: t('landing.budgetDesc') },
+              { icon: <Leaf className="w-6 h-6" />, title: t('landing.diet'), desc: t('landing.dietDesc') },
+              { icon: <Repeat className="w-6 h-6" />, title: t('landing.recurrent'), desc: t('landing.recurrentDesc') },
+              { icon: <Smartphone className="w-6 h-6" />, title: t('landing.pwa'), desc: t('landing.pwaDesc') },
               { icon: <Users className="w-6 h-6" />, title: t('landing.committee'), desc: t('landing.committeeDesc') },
               { icon: <Share2 className="w-6 h-6" />, title: t('landing.share'), desc: t('landing.shareDesc') },
-              { icon: <ShoppingBag className="w-6 h-6" />, title: t('landing.essentials'), desc: t('landing.essentialsDesc') },
             ].map((feature, i) => (
-              <div key={i} className="p-8 bg-white/5 border border-white/10 rounded-3xl hover:bg-white/[0.08] transition-colors group">
-                <div className="w-12 h-12 bg-chartreuse/10 text-chartreuse rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="p-8 bg-white/5 border border-white/10 rounded-3xl hover:bg-white/[0.08] transition-all hover:border-chartreuse/30 group"
+              >
+                <div className="w-12 h-12 bg-chartreuse/10 text-chartreuse rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform group-hover:bg-chartreuse group-hover:text-gunmetal">
                   {feature.icon}
                 </div>
                 <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
-                <p className="text-white/40 leading-relaxed">{feature.desc}</p>
-              </div>
+                <p className="text-white/40 leading-relaxed text-sm">{feature.desc}</p>
+              </motion.div>
             ))}
           </div>
         </div>
