@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Plus, Trash2, Check, RotateCcw, ChevronRight, LogOut, User as UserIcon, Crown, Sparkles, Loader2, Share2, Globe, Search, UtensilsCrossed } from 'lucide-react';
+import { Plus, Trash2, Check, RotateCcw, ChevronRight, LogOut, User as UserIcon, Crown, Sparkles, Loader2, Share2, Globe, Search, UtensilsCrossed, Leaf } from 'lucide-react';
 import { User, List, Item } from '../types';
 import { getEssentialsCategories } from '../constants';
 import { useTranslation, LOCALE_META, Locale } from '../i18n';
@@ -31,6 +31,16 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
   const [lastBudget, setLastBudget] = useState<string | null>(null);
   const [recipeMode, setRecipeMode] = useState(false);
   const [recipeUrl, setRecipeUrl] = useState('');
+  const [dietFilter, setDietFilter] = useState<string | null>(null);
+
+  const DIETS = [
+    { id: 'vegan', emoji: '🌱', labelKey: 'diet.vegan' },
+    { id: 'vegetarian', emoji: '🥚', labelKey: 'diet.vegetarian' },
+    { id: 'gluten-free', emoji: '🌾', labelKey: 'diet.glutenFree' },
+    { id: 'keto', emoji: '🥑', labelKey: 'diet.keto' },
+    { id: 'halal', emoji: '☪️', labelKey: 'diet.halal' },
+    { id: 'lactose-free', emoji: '🥛', labelKey: 'diet.lactoseFree' },
+  ];
 
   const essentials = getEssentialsCategories(t);
 
@@ -155,7 +165,7 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
       const res = await fetch('/api/genius', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: newItemName, listId: selectedList.id, locale }),
+        body: JSON.stringify({ prompt: newItemName, listId: selectedList.id, locale, diet: dietFilter }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Erreur Genius');
@@ -177,7 +187,7 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
       const res = await fetch('/api/recipe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: recipeUrl, listId: selectedList.id, locale }),
+        body: JSON.stringify({ url: recipeUrl, listId: selectedList.id, locale, diet: dietFilter }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Erreur recette');
@@ -380,6 +390,25 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
                   </motion.form>
                 )}
               </AnimatePresence>
+
+              {/* Diet Filter Chips */}
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                <Leaf className="w-4 h-4 text-green-400 flex-shrink-0" />
+                {DIETS.map(diet => (
+                  <button
+                    key={diet.id}
+                    type="button"
+                    onClick={() => setDietFilter(dietFilter === diet.id ? null : diet.id)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all active:scale-95 border ${dietFilter === diet.id
+                        ? 'bg-green-400/20 border-green-400 text-green-400'
+                        : 'bg-white/5 border-white/10 text-white/50 hover:border-white/20'
+                      }`}
+                  >
+                    <span>{diet.emoji}</span>
+                    <span>{t(diet.labelKey)}</span>
+                  </button>
+                ))}
+              </div>
 
               {error && <p className="text-red-400 text-sm">{error}</p>}
 

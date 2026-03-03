@@ -249,7 +249,7 @@ async function startServer() {
 
   // Genius AI Proxy — appelle Gemini côté serveur
   app.post("/api/genius", authGuard, async (req: any, res) => {
-    const { prompt, listId, locale } = req.body;
+    const { prompt, listId, locale, diet } = req.body;
     if (!prompt || !listId) return res.status(400).json({ error: "prompt and listId are required" });
 
     const apiKey = process.env.GEMINI_API_KEY;
@@ -262,9 +262,10 @@ async function startServer() {
 
     try {
       const ai = new GoogleGenAI({ apiKey });
+      const dietInstruction = diet ? `IMPORTANT: The user has selected the "${diet}" diet. All suggested items MUST strictly respect this diet. ` : '';
       const response = await ai.models.generateContent({
         model: "gemini-2.0-flash",
-        contents: `Generate a detailed grocery list for: "${prompt}". For each item, specify the name, quantity (e.g., "500g", "2 units"), and an estimated price in euros (e.g., "1.50"). Respond ONLY with a JSON array of objects { name: string, quantity: string, price: string }. Write ALL item names and quantities in ${lang}. The price should be a realistic estimate for a typical European supermarket.`,
+        contents: `${dietInstruction}Generate a detailed grocery list for: "${prompt}". For each item, specify the name, quantity (e.g., "500g", "2 units"), and an estimated price in euros (e.g., "1.50"). Respond ONLY with a JSON array of objects { name: string, quantity: string, price: string }. Write ALL item names and quantities in ${lang}. The price should be a realistic estimate for a typical European supermarket.`,
         config: {
           responseMimeType: "application/json",
           responseSchema: {
@@ -310,7 +311,7 @@ async function startServer() {
 
   // Recipe URL → extract ingredients via Gemini
   app.post("/api/recipe", authGuard, async (req: any, res) => {
-    const { url, listId, locale } = req.body;
+    const { url, listId, locale, diet } = req.body;
     if (!url || !listId) return res.status(400).json({ error: "url and listId are required" });
 
     const apiKey = process.env.GEMINI_API_KEY;
@@ -330,9 +331,10 @@ async function startServer() {
       const textContent = html.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<style[\s\S]*?<\/style>/gi, '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 8000);
 
       const ai = new GoogleGenAI({ apiKey });
+      const dietInstruction = diet ? `IMPORTANT: The user has selected the "${diet}" diet. Adapt ingredients or exclude non-compliant ones to strictly respect this diet. ` : '';
       const response = await ai.models.generateContent({
         model: "gemini-2.0-flash",
-        contents: `Extract the recipe ingredients from this page content and create a grocery list. For each ingredient, specify name, quantity, and estimated price in euros.\n\nPage content:\n${textContent}\n\nRespond ONLY with a JSON array of { name: string, quantity: string, price: string }. Write ALL names in ${lang}.`,
+        contents: `${dietInstruction}Extract the recipe ingredients from this page content and create a grocery list. For each ingredient, specify name, quantity, and estimated price in euros.\n\nPage content:\n${textContent}\n\nRespond ONLY with a JSON array of { name: string, quantity: string, price: string }. Write ALL names in ${lang}.`,
         config: {
           responseMimeType: "application/json",
           responseSchema: {
