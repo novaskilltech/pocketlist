@@ -1,8 +1,5 @@
 const fr: Record<string, string> = {
-    // App
     appName: 'PocketList',
-
-    // Landing
     'landing.login': 'Se connecter',
     'landing.badge': "L'IA au service de vos courses",
     'landing.heroLine1': 'Vos courses,',
@@ -29,8 +26,6 @@ const fr: Record<string, string> = {
     'landing.terms': 'Conditions',
     'landing.contact': 'Contact',
     'landing.copyright': '© 2026 PocketList. Tous droits réservés.',
-
-    // Auth
     'auth.tagline': 'Vos courses, simplifiées.',
     'auth.email': 'Email',
     'auth.emailPlaceholder': 'votre@email.com',
@@ -40,8 +35,6 @@ const fr: Record<string, string> = {
     'auth.verify': 'Vérifier le code',
     'auth.changeEmail': "Changer d'email",
     'auth.back': "Retour à l'accueil",
-
-    // Dashboard
     'dash.myAccount': 'Mon Compte',
     'dash.close': 'Fermer',
     'dash.emailLabel': 'Email',
@@ -69,31 +62,43 @@ const fr: Record<string, string> = {
     'dash.geniusPlaceholder': 'Ex: Ingrédients pour une pizza...',
     'dash.whatsappAll': 'Voici ma liste de courses "{name}" :\n\n{items}\n\nMerci !',
     'dash.whatsappUnchecked': 'Coucou ! Peux-tu me prendre ces quelques articles pour la liste "{name}" ?\n\n{items}\n\nMerci beaucoup ! ❤️',
-
-    // Essentials categories
-    'cat.dairy': 'Produits Laitiers',
-    'cat.grocery': 'Épicerie',
-    'cat.hygiene': 'Hygiène',
-    'cat.produce': 'Fruits & Légumes',
-    'cat.bakery': 'Boulangerie',
-
-    // Essentials items
+    'cat.dairy': 'Produits Laitiers', 'cat.grocery': 'Épicerie', 'cat.hygiene': 'Hygiène', 'cat.produce': 'Fruits & Légumes', 'cat.bakery': 'Boulangerie',
+    // Dairy
     'item.milk': 'Lait', 'item.butter': 'Beurre', 'item.salted_butter': 'Beurre salé', 'item.cheese': 'Fromage',
     'item.yogurt': 'Yaourts', 'item.greek_yogurt': 'Yaourt grec', 'item.cream': 'Crème fraîche',
     'item.liquid_cream': 'Crème liquide', 'item.mascarpone': 'Mascarpone', 'item.cottage_cheese': 'Fromage blanc',
+    'item.mozzarella': 'Mozzarella', 'item.parmesan': 'Parmesan', 'item.gouda': 'Gouda', 'item.feta': 'Feta',
+    'item.cheddar': 'Cheddar', 'item.goat_cheese': 'Chèvre', 'item.cream_cheese': 'Fromage à tartiner',
+    'item.whipped_cream': 'Chantilly', 'item.condensed_milk': 'Lait concentré', 'item.ricotta': 'Ricotta',
+    // Grocery
     'item.pasta': 'Pâtes', 'item.rice': 'Riz', 'item.flour': 'Farine', 'item.sugar': 'Sucre',
     'item.olive_oil': "Huile d'olive", 'item.cooking_oil': 'Huile de cuisson', 'item.vegetable_oil': 'Huile végétale',
     'item.salt': 'Sel', 'item.pepper': 'Poivre', 'item.coffee': 'Café', 'item.tea': 'Thé',
     'item.turmeric': 'Curcuma', 'item.paprika': 'Paprika',
+    'item.vinegar': 'Vinaigre', 'item.soy_sauce': 'Sauce soja', 'item.mustard': 'Moutarde', 'item.ketchup': 'Ketchup',
+    'item.honey': 'Miel', 'item.jam': 'Confiture', 'item.canned_tomatoes': 'Tomates en conserve',
+    'item.chickpeas': 'Pois chiches', 'item.lentils': 'Lentilles', 'item.cornstarch': 'Maïzena',
+    // Hygiene
     'item.soap': 'Savon', 'item.shampoo': 'Shampoing', 'item.toothpaste': 'Dentifrice',
     'item.toilet_paper': 'Papier toilette', 'item.deodorant': 'Déodorant', 'item.paper_towels': 'Essuie-tout',
     'item.laundry': 'Lessive liquide',
+    'item.conditioner': 'Après-shampoing', 'item.body_wash': 'Gel douche', 'item.razor': 'Rasoir',
+    'item.cotton_pads': 'Cotons', 'item.tissues': 'Mouchoirs', 'item.sunscreen': 'Crème solaire',
+    'item.moisturizer': 'Crème hydratante', 'item.dental_floss': 'Fil dentaire', 'item.mouthwash': 'Bain de bouche',
+    'item.hand_soap': 'Savon pour les mains',
+    // Produce
     'item.apples': 'Pommes', 'item.bananas': 'Bananes', 'item.oranges': 'Oranges', 'item.lemons': 'Citrons',
     'item.strawberries': 'Fraises', 'item.potatoes': 'Pommes de terre', 'item.onions': 'Oignons', 'item.garlic': 'Ail',
     'item.carrots': 'Carottes', 'item.tomatoes': 'Tomates', 'item.zucchini': 'Courgettes', 'item.avocados': 'Avocats',
     'item.lettuce': 'Salade', 'item.peppers': 'Poivrons', 'item.mushrooms': 'Champignons', 'item.broccoli': 'Brocoli',
+    'item.cucumber': 'Concombre', 'item.spinach': 'Épinards', 'item.eggplant': 'Aubergine', 'item.pears': 'Poires',
+    'item.grapes': 'Raisins', 'item.mango': 'Mangue', 'item.pineapple': 'Ananas', 'item.celery': 'Céleri',
+    'item.ginger': 'Gingembre', 'item.mint': 'Menthe',
+    // Bakery
     'item.white_bread': 'Pain blanc', 'item.whole_bread': 'Pain complet', 'item.grain_bread': 'Pain aux céréales',
     'item.semi_bread': 'Pain mi-blanc', 'item.pastries': 'Viennoiseries', 'item.brioche': 'Brioche', 'item.crackers': 'Biscottes',
+    'item.baguette': 'Baguette', 'item.rye_bread': 'Pain de seigle', 'item.croissant': 'Croissant',
+    'item.pain_au_chocolat': 'Pain au chocolat', 'item.muffin': 'Muffin', 'item.cookies': 'Cookies',
+    'item.pita_bread': 'Pain pita', 'item.flatbread': 'Galette', 'item.cake': 'Gâteau', 'item.donut': 'Beignet',
 };
-
 export default fr;
