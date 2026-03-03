@@ -29,6 +29,7 @@ const en: Record<string, string> = {
     'dash.shareDesc': 'Share this code to collaborate in real time on this list.', 'dash.shareOk': 'Got it!',
     'dash.essentialsTitle': 'Essentials library', 'dash.addItem': 'Add an item...',
     'dash.geniusPlaceholder': 'E.g.: Ingredients for a pizza...',
+    'dash.searchPlaceholder': 'Search for an item...',
     'dash.whatsappAll': 'Here is my shopping list "{name}":\n\n{items}\n\nThanks!',
     'dash.whatsappUnchecked': 'Hey! Can you grab these items for the list "{name}"?\n\n{items}\n\nThank you so much! ❤️',
     'cat.dairy': 'Dairy', 'cat.grocery': 'Grocery', 'cat.hygiene': 'Hygiene', 'cat.produce': 'Fruits & Vegetables', 'cat.bakery': 'Bakery',

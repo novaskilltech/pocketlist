@@ -28,6 +28,7 @@ const it: Record<string, string> = {
     'dash.shareTitle': 'Modalità Comitato', 'dash.shareDesc': 'Condividi questo codice per collaborare su questa lista.',
     'dash.shareOk': 'Capito!', 'dash.essentialsTitle': 'Libreria essenziali', 'dash.addItem': 'Aggiungi un articolo...',
     'dash.geniusPlaceholder': 'Es: Ingredienti per una pizza...',
+    'dash.searchPlaceholder': 'Cerca un articolo...',
     'dash.whatsappAll': 'Ecco la mia lista "{name}":\n\n{items}\n\nGrazie!',
     'dash.whatsappUnchecked': 'Ciao! Puoi prendermi questi dalla lista "{name}"?\n\n{items}\n\nGrazie mille! ❤️',
     'cat.dairy': 'Latticini', 'cat.grocery': 'Dispensa', 'cat.hygiene': 'Igiene', 'cat.produce': 'Frutta e Verdura', 'cat.bakery': 'Panetteria',

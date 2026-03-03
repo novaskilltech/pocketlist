@@ -28,6 +28,7 @@ const es: Record<string, string> = {
     'dash.shareDesc': 'Comparte este código para colaborar en tiempo real en esta lista.', 'dash.shareOk': '¡Entendido!',
     'dash.essentialsTitle': 'Biblioteca de esenciales', 'dash.addItem': 'Agregar un artículo...',
     'dash.geniusPlaceholder': 'Ej: Ingredientes para una pizza...',
+    'dash.searchPlaceholder': 'Buscar un artículo...',
     'dash.whatsappAll': 'Aquí está mi lista de compras "{name}":\n\n{items}\n\n¡Gracias!',
     'dash.whatsappUnchecked': '¡Hola! ¿Puedes conseguirme estos artículos de la lista "{name}"?\n\n{items}\n\n¡Muchas gracias! ❤️',
     'cat.dairy': 'Lácteos', 'cat.grocery': 'Despensa', 'cat.hygiene': 'Higiene', 'cat.produce': 'Frutas y Verduras', 'cat.bakery': 'Panadería',

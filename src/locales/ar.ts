@@ -28,6 +28,7 @@ const ar: Record<string, string> = {
     'dash.shareDesc': 'شارك هذا الرمز للتعاون في الوقت الفعلي على هذه القائمة.', 'dash.shareOk': 'تم!',
     'dash.essentialsTitle': 'مكتبة الأساسيات', 'dash.addItem': 'إضافة منتج...',
     'dash.geniusPlaceholder': 'مثال: مكونات البيتزا...',
+    'dash.searchPlaceholder': 'البحث عن منتج...',
     'dash.whatsappAll': 'إليك قائمة مشترياتي "{name}":\n\n{items}\n\nشكراً!',
     'dash.whatsappUnchecked': 'مرحباً! هل يمكنك إحضار هذه المنتجات من قائمة "{name}"؟\n\n{items}\n\nشكراً جزيلاً! ❤️',
     'cat.dairy': 'منتجات الألبان', 'cat.grocery': 'بقالة', 'cat.hygiene': 'نظافة', 'cat.produce': 'فواكه وخضروات', 'cat.bakery': 'مخبوزات',

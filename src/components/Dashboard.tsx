@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Plus, Trash2, Check, RotateCcw, ChevronRight, LogOut, User as UserIcon, Crown, Sparkles, Loader2, Share2, Globe } from 'lucide-react';
+import { Plus, Trash2, Check, RotateCcw, ChevronRight, LogOut, User as UserIcon, Crown, Sparkles, Loader2, Share2, Globe, Search } from 'lucide-react';
 import { User, List, Item } from '../types';
 import { getEssentialsCategories } from '../constants';
 import { useTranslation, LOCALE_META, Locale } from '../i18n';
@@ -25,6 +25,7 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
   const [joinToken, setJoinToken] = useState('');
   const [showShareModal, setShowShareModal] = useState(false);
   const [showLangMenu, setShowLangMenu] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const essentials = getEssentialsCategories(t);
 
@@ -170,6 +171,7 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
         <div className="max-w-2xl mx-auto px-4 py-3 sm:py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <h1 className="text-lg sm:text-xl font-bold tracking-tight text-chartreuse">{t('appName')}</h1>
+            <span className="text-[10px] font-bold bg-chartreuse/20 text-chartreuse px-1.5 py-0.5 rounded-full uppercase tracking-wider">Beta</span>
             {user.is_premium && <Crown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 fill-amber-400" />}
           </div>
           <div className="flex items-center gap-1 sm:gap-2">
@@ -310,6 +312,20 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
 
               {error && <p className="text-red-400 text-sm">{error}</p>}
 
+              {/* Search / Filter */}
+              {items.length > 3 && (
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder={t('dash.searchPlaceholder')}
+                    className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-white/20 focus:ring-1 focus:ring-chartreuse/50 outline-none transition-all"
+                  />
+                </div>
+              )}
+
               <div className="space-y-4">
                 <div className="flex items-center justify-between px-1"><h3 className="text-sm font-bold text-white/40 uppercase tracking-wider">{t('dash.essentialsTitle')}</h3></div>
                 <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 pb-2">
@@ -341,7 +357,7 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
               </div>
 
               <div className="grid gap-2">
-                {items.map(item => (
+                {items.filter(item => !searchQuery || item.name.toLowerCase().includes(searchQuery.toLowerCase())).map(item => (
                   <button key={item.id} onClick={() => toggleItem(item)}
                     className={`flex items-center gap-4 p-4 rounded-2xl transition-all text-left group active:scale-[0.98] ${item.is_checked ? 'bg-white/5' : 'bg-white/5 border border-white/10 hover:border-chartreuse/30'}`}>
                     <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${item.is_checked ? 'bg-chartreuse border-chartreuse' : 'border-white/20 group-hover:border-chartreuse/50'}`}>

@@ -60,6 +60,7 @@ const fr: Record<string, string> = {
     'dash.essentialsTitle': "Bibliothèque d'essentiels",
     'dash.addItem': 'Ajouter un article...',
     'dash.geniusPlaceholder': 'Ex: Ingrédients pour une pizza...',
+    'dash.searchPlaceholder': 'Rechercher un article...',
     'dash.whatsappAll': 'Voici ma liste de courses "{name}" :\n\n{items}\n\nMerci !',
     'dash.whatsappUnchecked': 'Coucou ! Peux-tu me prendre ces quelques articles pour la liste "{name}" ?\n\n{items}\n\nMerci beaucoup ! ❤️',
     'cat.dairy': 'Produits Laitiers', 'cat.grocery': 'Épicerie', 'cat.hygiene': 'Hygiène', 'cat.produce': 'Fruits & Légumes', 'cat.bakery': 'Boulangerie',
