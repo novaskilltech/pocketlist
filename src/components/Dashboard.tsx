@@ -28,6 +28,7 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
   const [showLangMenu, setShowLangMenu] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showConfetti, setShowConfetti] = useState(false);
+  const [lastBudget, setLastBudget] = useState<string | null>(null);
 
   const essentials = getEssentialsCategories(t);
 
@@ -157,6 +158,7 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Erreur Genius');
       setItems([...items, ...data.items]);
+      if (data.budget) setLastBudget(data.budget);
       setNewItemName('');
       setGeniusMode(false);
     } catch (err: any) {
@@ -318,6 +320,26 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
               </form>
 
               {error && <p className="text-red-400 text-sm">{error}</p>}
+
+              {/* Budget Banner */}
+              {lastBudget && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center justify-between p-4 bg-chartreuse/10 border border-chartreuse/20 rounded-2xl"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-chartreuse/20 rounded-xl flex items-center justify-center">
+                      <span className="text-lg">💰</span>
+                    </div>
+                    <div>
+                      <p className="text-sm text-white/60">{t('dash.budgetLabel')}</p>
+                      <p className="text-xl font-bold text-chartreuse">{lastBudget}€</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setLastBudget(null)} className="text-white/30 hover:text-white/60 text-xl">&times;</button>
+                </motion.div>
+              )}
 
               {/* Search / Filter */}
               {items.length > 3 && (

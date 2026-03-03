@@ -264,7 +264,7 @@ async function startServer() {
       const ai = new GoogleGenAI({ apiKey });
       const response = await ai.models.generateContent({
         model: "gemini-2.0-flash",
-        contents: `Generate a detailed grocery list for: "${prompt}". For each item, specify the name and quantity (e.g., "500g", "2 units", "1 liter"). Respond ONLY with a JSON array of objects { name: string, quantity: string }. Write ALL item names and quantities in ${lang}.`,
+        contents: `Generate a detailed grocery list for: "${prompt}". For each item, specify the name, quantity (e.g., "500g", "2 units"), and an estimated price in euros (e.g., "1.50"). Respond ONLY with a JSON array of objects { name: string, quantity: string, price: string }. Write ALL item names and quantities in ${lang}. The price should be a realistic estimate for a typical European supermarket.`,
         config: {
           responseMimeType: "application/json",
           responseSchema: {
@@ -273,15 +273,16 @@ async function startServer() {
               type: Type.OBJECT,
               properties: {
                 name: { type: Type.STRING },
-                quantity: { type: Type.STRING }
+                quantity: { type: Type.STRING },
+                price: { type: Type.STRING }
               },
-              required: ["name", "quantity"]
+              required: ["name", "quantity", "price"]
             }
           }
         }
       });
 
-      const generatedItems: { name: string; quantity: string }[] = JSON.parse(response.text || '[]');
+      const generatedItems: { name: string; quantity: string; price: string }[] = JSON.parse(response.text || '[]');
 
       if (generatedItems.length === 0) {
         return res.status(400).json({ error: "Aucun article généré." });
@@ -289,15 +290,18 @@ async function startServer() {
 
       // Ajouter les articles en base + broadcast
       const addedItems: any[] = [];
+      let totalBudget = 0;
       for (const genItem of generatedItems) {
         const id = uuidv4();
-        db.prepare("INSERT INTO items (id, list_id, name, quantity) VALUES (?, ?, ?, ?)").run(id, listId, genItem.name, genItem.quantity || null);
+        const qty = genItem.price ? `${genItem.quantity} · ~${genItem.price}€` : genItem.quantity;
+        db.prepare("INSERT INTO items (id, list_id, name, quantity) VALUES (?, ?, ?, ?)").run(id, listId, genItem.name, qty);
         const item = db.prepare("SELECT * FROM items WHERE id = ?").get(id);
         addedItems.push(item);
         broadcast(listId, { type: "ITEM_ADDED", item });
+        totalBudget += parseFloat(genItem.price) || 0;
       }
 
-      res.json({ items: addedItems });
+      res.json({ items: addedItems, budget: totalBudget.toFixed(2) });
     } catch (err: any) {
       console.error("Genius API error:", err);
       res.status(500).json({ error: err.message || "Erreur lors de la génération" });

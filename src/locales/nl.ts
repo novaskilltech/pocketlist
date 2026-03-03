@@ -29,6 +29,7 @@ const nl: Record<string, string> = {
     'dash.shareOk': 'Begrepen!', 'dash.essentialsTitle': 'Essentials-bibliotheek', 'dash.addItem': 'Artikel toevoegen...',
     'dash.geniusPlaceholder': 'Bijv.: Ingrediënten voor een pizza...',
     'dash.searchPlaceholder': 'Zoek een artikel...',
+    'dash.budgetLabel': 'Geschat budget (Genius)',
     'dash.whatsappAll': 'Hier is mijn boodschappenlijst "{name}":\n\n{items}\n\nBedankt!',
     'dash.whatsappUnchecked': 'Hoi! Kun je deze voor "{name}" meenemen?\n\n{items}\n\nHeel erg bedankt! ❤️',
     'cat.dairy': 'Zuivel', 'cat.grocery': 'Kruidenier', 'cat.hygiene': 'Hygiëne', 'cat.produce': 'Groenten & Fruit', 'cat.bakery': 'Bakkerij',

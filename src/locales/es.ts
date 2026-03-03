@@ -29,6 +29,7 @@ const es: Record<string, string> = {
     'dash.essentialsTitle': 'Biblioteca de esenciales', 'dash.addItem': 'Agregar un artículo...',
     'dash.geniusPlaceholder': 'Ej: Ingredientes para una pizza...',
     'dash.searchPlaceholder': 'Buscar un artículo...',
+    'dash.budgetLabel': 'Presupuesto estimado (Genius)',
     'dash.whatsappAll': 'Aquí está mi lista de compras "{name}":\n\n{items}\n\n¡Gracias!',
     'dash.whatsappUnchecked': '¡Hola! ¿Puedes conseguirme estos artículos de la lista "{name}"?\n\n{items}\n\n¡Muchas gracias! ❤️',
     'cat.dairy': 'Lácteos', 'cat.grocery': 'Despensa', 'cat.hygiene': 'Higiene', 'cat.produce': 'Frutas y Verduras', 'cat.bakery': 'Panadería',
