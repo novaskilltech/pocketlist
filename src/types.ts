@@ -17,6 +17,7 @@ export interface Item {
   list_id: string;
   name: string;
   quantity?: string;
+  price?: number;
   is_checked: boolean;
   created_at: string;
 }

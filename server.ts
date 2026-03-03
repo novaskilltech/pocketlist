@@ -80,6 +80,7 @@ db.exec(`
     list_id TEXT NOT NULL,
     name TEXT NOT NULL,
     quantity TEXT,
+    price REAL,
     is_checked BOOLEAN DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(list_id) REFERENCES lists(id) ON DELETE CASCADE
@@ -96,6 +97,7 @@ db.exec(`
 
 // Run migrations
 try { db.exec("ALTER TABLE items ADD COLUMN quantity TEXT"); } catch (e) { }
+try { db.exec("ALTER TABLE items ADD COLUMN price REAL"); } catch (e) { }
 
 async function startServer() {
   const app = express();
@@ -218,7 +220,7 @@ async function startServer() {
   app.get("/api/lists/:id/items", authGuard, (req: any, res) => res.json(db.prepare("SELECT * FROM items WHERE list_id = ?").all(req.params.id)));
   app.post("/api/lists/:id/items", authGuard, (req: any, res) => {
     const id = uuidv4();
-    db.prepare("INSERT INTO items (id, list_id, name, quantity) VALUES (?, ?, ?, ?)").run(id, req.params.id, req.body.name, req.body.quantity || null);
+    db.prepare("INSERT INTO items (id, list_id, name, quantity, price) VALUES (?, ?, ?, ?, ?)").run(id, req.params.id, req.body.name, req.body.quantity || null, req.body.price || null);
     const item = db.prepare("SELECT * FROM items WHERE id = ?").get(id);
     broadcast(req.params.id, { type: "ITEM_ADDED", item });
     res.json(item);
@@ -306,8 +308,7 @@ async function startServer() {
       let totalBudget = 0;
       for (const genItem of generatedItems) {
         const id = uuidv4();
-        const qty = genItem.price ? `${genItem.quantity} · ~${genItem.price}€` : genItem.quantity;
-        db.prepare("INSERT INTO items (id, list_id, name, quantity) VALUES (?, ?, ?, ?)").run(id, listId, genItem.name, qty);
+        db.prepare("INSERT INTO items (id, list_id, name, quantity, price) VALUES (?, ?, ?, ?, ?)").run(id, listId, genItem.name, genItem.quantity, parseFloat(genItem.price) || null);
         const item = db.prepare("SELECT * FROM items WHERE id = ?").get(id);
         addedItems.push(item);
         broadcast(listId, { type: "ITEM_ADDED", item });
@@ -371,8 +372,7 @@ async function startServer() {
       let totalBudget = 0;
       for (const genItem of generatedItems) {
         const id = uuidv4();
-        const qty = genItem.price ? `${genItem.quantity} · ~${genItem.price}€` : genItem.quantity;
-        db.prepare("INSERT INTO items (id, list_id, name, quantity) VALUES (?, ?, ?, ?)").run(id, listId, genItem.name, qty);
+        db.prepare("INSERT INTO items (id, list_id, name, quantity, price) VALUES (?, ?, ?, ?, ?)").run(id, listId, genItem.name, genItem.quantity, parseFloat(genItem.price) || null);
         const item = db.prepare("SELECT * FROM items WHERE id = ?").get(id);
         addedItems.push(item);
         broadcast(listId, { type: "ITEM_ADDED", item });

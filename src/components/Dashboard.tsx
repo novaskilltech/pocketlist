@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Plus, Trash2, Check, RotateCcw, ChevronRight, LogOut, User as UserIcon, Crown, Sparkles, Loader2, Share2, Globe, Search, UtensilsCrossed, Leaf, Repeat } from 'lucide-react';
+import { Plus, Trash2, Check, RotateCcw, ChevronRight, LogOut, User as UserIcon, Crown, Sparkles, Loader2, Share2, Globe, Search, UtensilsCrossed, Leaf, Repeat, Wallet, Smartphone } from 'lucide-react';
 import { User, List, Item } from '../types';
 import { getEssentialsCategories } from '../constants';
 import { useTranslation, LOCALE_META, Locale } from '../i18n';
@@ -32,6 +32,7 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
   const [recipeMode, setRecipeMode] = useState(false);
   const [recipeUrl, setRecipeUrl] = useState('');
   const [dietFilter, setDietFilter] = useState<string | null>(null);
+  const [totalBudget, setTotalBudget] = useState<number>(0);
 
   const DIETS = [
     { id: 'vegan', emoji: '🌱', labelKey: 'diet.vegan' },
@@ -81,7 +82,16 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
   }, [selectedList]);
 
   const fetchLists = async () => { try { const res = await fetch('/api/lists'); setLists(await res.json()); } catch { } };
-  const fetchItems = async (listId: string) => { try { const res = await fetch(`/api/lists/${listId}/items`); setItems(await res.json()); } catch { } };
+  const fetchItems = async (listId: string) => {
+    try {
+      const res = await fetch(`/api/lists/${listId}/items`);
+      const data = await res.json();
+      setItems(data);
+      // Calculer le budget initial
+      const budget = data.reduce((sum: number, item: Item) => sum + (item.price || 0), 0);
+      setTotalBudget(budget);
+    } catch { }
+  };
 
   const createList = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -197,8 +207,9 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Erreur Genius');
-      setItems([...items, ...data.items]);
-      if (data.budget) setLastBudget(data.budget);
+      const updatedItems = [...items, ...data.items];
+      setItems(updatedItems);
+      setTotalBudget(updatedItems.reduce((sum, item) => sum + (item.price || 0), 0));
       setNewItemName('');
       setGeniusMode(false);
     } catch (err: any) {
@@ -219,8 +230,9 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Erreur recette');
-      setItems([...items, ...data.items]);
-      if (data.budget) setLastBudget(data.budget);
+      const updatedItems = [...items, ...data.items];
+      setItems(updatedItems);
+      setTotalBudget(updatedItems.reduce((sum, item) => sum + (item.price || 0), 0));
       setRecipeUrl('');
       setRecipeMode(false);
     } catch (err: any) {
@@ -361,6 +373,12 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
                 </button>
                 <h2 className="text-xl font-bold text-chartreuse">{selectedList.name}</h2>
                 <div className="flex items-center gap-1">
+                  {totalBudget > 0 && (
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-chartreuse/10 border border-chartreuse/20 rounded-full text-chartreuse">
+                      <Wallet className="w-4 h-4" />
+                      <span className="text-xs font-bold">{totalBudget.toFixed(2)}€</span>
+                    </div>
+                  )}
                   <button onClick={toggleRecurrence} className={`p-2 transition-colors ${selectedList.is_recurrent ? 'text-chartreuse' : 'text-white/20 hover:text-white/40'}`} title={t('dash.recurrentTitle')}><Repeat className="w-5 h-5" /></button>
                   <button onClick={() => setShowShareModal(true)} className="p-2 text-white/40 hover:text-chartreuse transition-colors" title={t('dash.shareTitle')}><Crown className="w-5 h-5" /></button>
                   <button onClick={shareOnWhatsApp} className="p-2 text-white/40 hover:text-[#25D366] transition-colors" title="WhatsApp"><Share2 className="w-5 h-5" /></button>
@@ -376,14 +394,14 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
                   {geniusMode && <Sparkles className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-chartreuse animate-pulse" />}
                 </div>
                 <button type="button" onClick={() => { setGeniusMode(!geniusMode); setRecipeMode(false); }}
-                  className={`p-3.5 rounded-2xl transition-all border active:scale-95 ${geniusMode ? 'bg-chartreuse/20 border-chartreuse text-chartreuse' : 'bg-white/5 border-white/10 text-white/40 hover:text-chartreuse'}`}
-                  title={t('landing.genius')}>
+                  className={`p-3.5 rounded-2xl transition-all border active:scale-95 flex items-center gap-2 ${geniusMode ? 'bg-chartreuse border-chartreuse text-gunmetal font-bold' : 'bg-white/5 border-white/10 text-white/40 hover:text-chartreuse'}`}>
                   <Sparkles className="w-6 h-6" />
+                  <span className="text-xs font-bold uppercase hidden sm:block">Genius</span>
                 </button>
                 <button type="button" onClick={() => { setRecipeMode(!recipeMode); setGeniusMode(false); }}
-                  className={`p-3.5 rounded-2xl transition-all border active:scale-95 ${recipeMode ? 'bg-orange-400/20 border-orange-400 text-orange-400' : 'bg-white/5 border-white/10 text-white/40 hover:text-orange-400'}`}
-                  title={t('dash.recipeTitle')}>
+                  className={`p-3.5 rounded-2xl transition-all border active:scale-95 flex items-center gap-2 ${recipeMode ? 'bg-orange-400 border-orange-400 text-gunmetal font-bold' : 'bg-white/5 border-white/10 text-white/40 hover:text-orange-400'}`}>
                   <UtensilsCrossed className="w-6 h-6" />
+                  <span className="text-xs font-bold uppercase hidden sm:block">Recette</span>
                 </button>
                 <button disabled={isGeniusLoading} className="bg-chartreuse text-gunmetal p-3.5 rounded-2xl font-bold hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-chartreuse/20 disabled:opacity-50">
                   {isGeniusLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Plus className="w-6 h-6" />}
@@ -522,7 +540,10 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className={`font-medium transition-all ${item.is_checked ? 'line-through text-chartreuse/60' : 'text-white'}`}>{item.name}</p>
-                        {item.quantity && <p className={`text-xs ${item.is_checked ? 'text-white/10' : 'text-white/40'}`}>{item.quantity}</p>}
+                        <div className="flex items-center gap-2">
+                          {item.quantity && <p className={`text-xs ${item.is_checked ? 'text-white/10' : 'text-white/40'}`}>{item.quantity}</p>}
+                          {item.price && <p className={`text-xs font-bold px-1.5 py-0.5 rounded-md ${item.is_checked ? 'bg-white/5 text-white/10' : 'bg-chartreuse/10 text-chartreuse'}`}>~{item.price}€</p>}
+                        </div>
                       </div>
                       <button onClick={(e) => deleteItem(item.id, e)} className="p-2 text-white/20 hover:text-red-500 transition-colors sm:opacity-0 sm:group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
                     </button>
