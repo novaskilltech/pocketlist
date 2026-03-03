@@ -2,12 +2,26 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <meta name="theme-color" content="#1a2332"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+    <meta name="description" content="PocketList - Liste de courses intelligente et collaborative, propulsée par l'IA."/>
+    <link rel="manifest" href="/manifest.json"/>
+    <link rel="icon" type="image/png" href="/icon-512.png"/>
+    <link rel="apple-touch-icon" href="/icon-512.png"/>
     <title>PocketList - Vos courses simplifiées</title>
-  <script type='text/javascript' nonce='+Sy9Pbb90x/QUSAq44FrBA==' src='https://aistudio.google.com/o7mDy0bvIOJwSpRpTwYu8EZM0ZEjGoo0HSXknEmwdJlcM2vedpRiLgX9vunCF4KyszIsN0_oOgLLBq81tjGBLShgR8mIwsUwB1Ohis3qezjJcChkY4hiGE_ySdv_mMrfjXuFp2gcl5gLjaWvvMrFrbGUob6uv9bk9JEwkLC3q6nAzBm2MoH5yCvgsXoET4AtgOK9GQybpAAQkDP9FzA8W35h117evZtvzbzLbHiU2mQCUo8yWlMPY3kIhWvOEI8peCDN7SBGrtF_V8SLog0e2ypCC3keVN874TZJWEUY-skGM63pmeSqndenJEUphl3nvr4Z9A02z6yQWREZGgB-czFtqOb2psXb0ek4wazqDZuQpan2bjyNr1wMs0IMRxP7PWUgcWHo09cBWZs0QYnal74q1JAtzDwhQ1ff2yFXnWwipAaZyV-oZZN363y1hVmcAMOcPb0wkj31gZGdUp5C9SdlGzBKC6qLWLl1oQ0BXmYHn67JWUrBPZQHA3ze2dNDl9mp3ol0oO1IkCHeMaEarK07WZ9SaX43_A-vt6otMSE-STOvXqFgacEeEdADIbTEiT5lHK2D1qoe_kubEMW4reV20iPyBfK0jNnqhckDk_tlVOpDqA'></script></head>
+  </head>
   <body>
     <div id="root">Chargement de PocketList...</div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
+      }
+    </script>
   </body>
 </html>
 

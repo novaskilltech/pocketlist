@@ -1,0 +1,23 @@
+{
+    "name": "PocketList",
+    "short_name": "PocketList",
+    "description": "Vos courses, simplifiées. Liste de courses intelligente et collaborative.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#1a2332",
+    "theme_color": "#DFFF00",
+    "orientation": "portrait",
+    "icons": [
+        {
+            "src": "/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": [
+        "shopping",
+        "productivity",
+        "lifestyle"
+    ]
+}
