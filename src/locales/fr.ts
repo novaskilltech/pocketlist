@@ -85,6 +85,13 @@ const fr: Record<string, string> = {
     'diet.lactoseFree': 'Sans lact.',
     'dash.whatsappAll': 'Voici ma liste de courses "{name}" :\n\n{items}\n\nMerci !',
     'dash.whatsappUnchecked': 'Coucou ! Peux-tu me prendre ces quelques articles pour la liste "{name}" ?\n\n{items}\n\nMerci beaucoup ! ❤️',
+    'dash.shareOptionsTitle': 'Options de partage',
+    'dash.sms': 'SMS',
+    'dash.telegram': 'Telegram',
+    'dash.signal': 'Signal',
+    'dash.messenger': 'Messenger',
+    'dash.facebook': 'Facebook',
+    'dash.x': 'X (Twitter)',
     'cat.dairy': 'Produits Laitiers', 'cat.grocery': 'Épicerie', 'cat.hygiene': 'Hygiène', 'cat.produce': 'Fruits & Légumes', 'cat.bakery': 'Boulangerie',
     // Dairy
     'item.milk': 'Lait', 'item.butter': 'Beurre', 'item.salted_butter': 'Beurre salé', 'item.cheese': 'Fromage',
