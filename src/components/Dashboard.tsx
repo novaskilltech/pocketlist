@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Plus, Trash2, Check, RotateCcw, ChevronRight, LogOut, User as UserIcon, Crown, Sparkles, Loader2, Share2, Globe, Search, UtensilsCrossed, Leaf, Repeat, Wallet, Smartphone } from 'lucide-react';
+import { Plus, Trash2, Check, RotateCcw, ChevronRight, LogOut, User as UserIcon, Crown, Sparkles, Loader2, Share2, Globe, Search, UtensilsCrossed, Leaf, Repeat, Wallet, Copy } from 'lucide-react';
 import { User, List, Item } from '../types';
 import { getEssentialsCategories } from '../constants';
 import { useTranslation, LOCALE_META, Locale } from '../i18n';
@@ -33,6 +33,8 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
   const [recipeUrl, setRecipeUrl] = useState('');
   const [dietFilter, setDietFilter] = useState<string | null>(null);
   const [totalBudget, setTotalBudget] = useState<number>(0);
+  const [showShareOptions, setShowShareOptions] = useState(false);
+  const [copiedToClipboard, setCopiedToClipboard] = useState(false);
 
   const DIETS = [
     { id: 'vegan', emoji: '🌱', labelKey: 'diet.vegan' },
@@ -175,14 +177,64 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
     } catch { }
   };
 
-  const shareOnWhatsApp = () => {
-    if (!selectedList) return;
+  const buildShareMessage = () => {
+    if (!selectedList) return '';
     const unchecked = items.filter(i => !i.is_checked);
     const target = unchecked.length === 0 ? items : unchecked;
     const itemsList = target.map(i => `- ${i.name}`).join('\n');
     const template = unchecked.length === 0 ? t('dash.whatsappAll') : t('dash.whatsappUnchecked');
-    const message = template.replace('{name}', selectedList.name).replace('{items}', itemsList);
+    return template.replace('{name}', selectedList.name).replace('{items}', itemsList);
+  };
+
+  const shareOnWhatsApp = () => {
+    const message = buildShareMessage();
     window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+    setShowShareOptions(false);
+  };
+
+  const shareOnSMS = () => {
+    const message = buildShareMessage();
+    window.open(`sms:?body=${encodeURIComponent(message)}`, '_blank');
+    setShowShareOptions(false);
+  };
+
+  const shareOnTelegram = () => {
+    const message = buildShareMessage();
+    window.open(`https://t.me/share/url?text=${encodeURIComponent(message)}`, '_blank');
+    setShowShareOptions(false);
+  };
+
+  const shareOnSignal = () => {
+    const message = buildShareMessage();
+    window.open(`https://signal.me/#p?text=${encodeURIComponent(message)}`, '_blank');
+    setShowShareOptions(false);
+  };
+
+  const shareOnMessenger = () => {
+    const message = buildShareMessage();
+    window.open(`https://www.facebook.com/dialog/send?link=${encodeURIComponent(window.location.href)}&redirect_uri=${encodeURIComponent(window.location.href)}`, '_blank');
+    setShowShareOptions(false);
+  };
+
+  const shareOnFacebook = () => {
+    const message = buildShareMessage();
+    window.open(`https://www.facebook.com/sharer/sharer.php?quote=${encodeURIComponent(message)}&u=${encodeURIComponent(window.location.href)}`, '_blank');
+    setShowShareOptions(false);
+  };
+
+  const shareOnX = () => {
+    const message = buildShareMessage();
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}`, '_blank');
+    setShowShareOptions(false);
+  };
+
+  const copyToClipboard = async () => {
+    const message = buildShareMessage();
+    try {
+      await navigator.clipboard.writeText(message);
+      setCopiedToClipboard(true);
+      setTimeout(() => setCopiedToClipboard(false), 2000);
+    } catch { }
   };
 
   const handleLogout = async () => { await fetch('/api/auth/logout', { method: 'POST' }); onLogout(); };
@@ -381,7 +433,7 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
                   )}
                   <button onClick={toggleRecurrence} className={`p-2 transition-colors ${selectedList.is_recurrent ? 'text-chartreuse' : 'text-white/20 hover:text-white/40'}`} title={t('dash.recurrentTitle')}><Repeat className="w-5 h-5" /></button>
                   <button onClick={() => setShowShareModal(true)} className="p-2 text-white/40 hover:text-chartreuse transition-colors" title={t('dash.shareTitle')}><Crown className="w-5 h-5" /></button>
-                  <button onClick={shareOnWhatsApp} className="p-2 text-white/40 hover:text-[#25D366] transition-colors" title="WhatsApp"><Share2 className="w-5 h-5" /></button>
+                  <button onClick={() => setShowShareOptions(true)} className="p-2 text-white/40 hover:text-[#25D366] transition-colors" title={t('dash.shareOptionsTitle')}><Share2 className="w-5 h-5" /></button>
                   <button onClick={resetList} className="p-2 text-white/20 hover:text-chartreuse transition-colors"><RotateCcw className="w-5 h-5" /></button>
                 </div>
               </div>
@@ -561,6 +613,84 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
                 <div><h3 className="text-xl font-bold text-white">{t('dash.shareTitle')}</h3><p className="text-white/60 text-sm mt-1">{t('dash.shareDesc')}</p></div>
                 <div className="bg-white/5 border border-white/10 rounded-2xl p-4"><p className="text-3xl font-mono font-bold tracking-widest text-chartreuse">{(selectedList as any).share_token}</p></div>
                 <button onClick={() => setShowShareModal(false)} className="w-full bg-chartreuse text-gunmetal py-3 rounded-2xl font-bold hover:brightness-110 transition-all">{t('dash.shareOk')}</button>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* Share Options Modal */}
+        <AnimatePresence>
+          {showShareOptions && selectedList && (
+            <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-gunmetal/80 backdrop-blur-sm" onClick={() => setShowShareOptions(false)}>
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 40 }}
+                onClick={e => e.stopPropagation()}
+                className="bg-[#1a1f2e] border border-white/10 rounded-3xl p-6 w-full max-w-sm space-y-4"
+              >
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-bold text-white">{t('dash.shareOptionsTitle')}</h3>
+                  <button onClick={() => setShowShareOptions(false)} className="text-white/40 hover:text-white text-xl leading-none">&times;</button>
+                </div>
+                <div className="grid grid-cols-4 gap-3">
+                  {/* WhatsApp */}
+                  <button onClick={shareOnWhatsApp} className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-white/5 hover:bg-[#25D366]/20 border border-white/10 hover:border-[#25D366]/40 transition-all active:scale-95">
+                    <div className="w-10 h-10 rounded-xl bg-[#25D366] flex items-center justify-center">
+                      <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" /><path d="M12 0C5.373 0 0 5.373 0 12c0 2.125.557 4.126 1.527 5.859L0 24l6.335-1.527A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 0 1-5.007-1.371l-.36-.214-3.727.978.995-3.638-.236-.374A9.818 9.818 0 1 1 12 21.818z" /></svg>
+                    </div>
+                    <span className="text-[10px] text-white/60 font-medium">WhatsApp</span>
+                  </button>
+                  {/* SMS */}
+                  <button onClick={shareOnSMS} className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-white/5 hover:bg-green-500/20 border border-white/10 hover:border-green-500/40 transition-all active:scale-95">
+                    <div className="w-10 h-10 rounded-xl bg-green-500 flex items-center justify-center">
+                      <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" /></svg>
+                    </div>
+                    <span className="text-[10px] text-white/60 font-medium">{t('dash.sms')}</span>
+                  </button>
+                  {/* Telegram */}
+                  <button onClick={shareOnTelegram} className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-white/5 hover:bg-[#0088cc]/20 border border-white/10 hover:border-[#0088cc]/40 transition-all active:scale-95">
+                    <div className="w-10 h-10 rounded-xl bg-[#0088cc] flex items-center justify-center">
+                      <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" /></svg>
+                    </div>
+                    <span className="text-[10px] text-white/60 font-medium">{t('dash.telegram')}</span>
+                  </button>
+                  {/* Signal */}
+                  <button onClick={shareOnSignal} className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-white/5 hover:bg-[#3a76f0]/20 border border-white/10 hover:border-[#3a76f0]/40 transition-all active:scale-95">
+                    <div className="w-10 h-10 rounded-xl bg-[#3a76f0] flex items-center justify-center">
+                      <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12c0 1.85.42 3.604 1.17 5.163l-1.046 3.81 3.906-1.024A11.949 11.949 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm.072 5.143c1.029 0 2.056.25 2.977.752l.432-.43a.536.536 0 0 1 .759 0l.51.51a.536.536 0 0 1 0 .758l-.351.352c.635.856 1.016 1.919 1.016 3.074a5.033 5.033 0 0 1-5.033 5.033 5.033 5.033 0 0 1-4.578-2.949l-.41.41a.536.536 0 0 1-.758 0l-.51-.51a.536.536 0 0 1 0-.758l.499-.499A5.013 5.013 0 0 1 7.04 10.16a5.033 5.033 0 0 1 5.032-5.017z" /></svg>
+                    </div>
+                    <span className="text-[10px] text-white/60 font-medium">{t('dash.signal')}</span>
+                  </button>
+                  {/* Messenger */}
+                  <button onClick={shareOnMessenger} className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-white/5 hover:bg-[#0084ff]/20 border border-white/10 hover:border-[#0084ff]/40 transition-all active:scale-95">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0084ff] to-[#a033ff] flex items-center justify-center">
+                      <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.04 0 11.266c0 3.4 1.6 6.437 4.1 8.444V24l3.7-2.034c.988.274 2.034.42 3.116.42 6.627 0 12-5.04 12-11.26C23 5.04 17.627 0 12 0zm1.187 15.176l-3.05-3.257-5.95 3.257 6.55-6.948 3.124 3.257 5.876-3.257-6.55 6.948z" /></svg>
+                    </div>
+                    <span className="text-[10px] text-white/60 font-medium">{t('dash.messenger')}</span>
+                  </button>
+                  {/* Facebook */}
+                  <button onClick={shareOnFacebook} className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-white/5 hover:bg-[#1877f2]/20 border border-white/10 hover:border-[#1877f2]/40 transition-all active:scale-95">
+                    <div className="w-10 h-10 rounded-xl bg-[#1877f2] flex items-center justify-center">
+                      <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" /></svg>
+                    </div>
+                    <span className="text-[10px] text-white/60 font-medium">{t('dash.facebook')}</span>
+                  </button>
+                  {/* X / Twitter */}
+                  <button onClick={shareOnX} className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/30 transition-all active:scale-95">
+                    <div className="w-10 h-10 rounded-xl bg-black border border-white/20 flex items-center justify-center">
+                      <svg className="w-5 h-5 fill-white" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.402 6.231H2.744l7.736-8.86L2.1 2.25H8.29l4.261 5.635 5.693-5.635zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
+                    </div>
+                    <span className="text-[10px] text-white/60 font-medium">{t('dash.x')}</span>
+                  </button>
+                  {/* Copy */}
+                  <button onClick={copyToClipboard} className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-white/5 hover:bg-chartreuse/20 border border-white/10 hover:border-chartreuse/40 transition-all active:scale-95">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${copiedToClipboard ? 'bg-chartreuse' : 'bg-white/10'}`}>
+                      <Copy className={`w-5 h-5 ${copiedToClipboard ? 'text-gunmetal' : 'text-white'}`} />
+                    </div>
+                    <span className="text-[10px] text-white/60 font-medium">{copiedToClipboard ? '✅' : 'Copier'}</span>
+                  </button>
+                </div>
               </motion.div>
             </div>
           )}
