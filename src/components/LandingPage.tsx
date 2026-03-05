@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { Sparkles, Users, Share2, ShoppingBag, ArrowRight, CheckCircle2, Crown, UtensilsCrossed, Leaf, Repeat, Wallet, Smartphone, Search } from 'lucide-react';
+import { Sparkles, Users, Share2, ShoppingBag, ArrowRight, CheckCircle2, Crown, UtensilsCrossed, Leaf, Repeat, Wallet, Smartphone, Search, CloudSun } from 'lucide-react';
 import { useTranslation, LOCALE_META, Locale } from '../i18n';
 
 interface LandingPageProps {
@@ -146,6 +146,7 @@ export default function LandingPage({ onGetStarted, onNavigate }: LandingPagePro
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               { icon: <Sparkles className="w-6 h-6" />, title: t('landing.genius'), desc: t('landing.geniusDesc') },
+              { icon: <CloudSun className="w-6 h-6" />, title: t('landing.inspiration'), desc: t('landing.inspirationDesc') },
               { icon: <UtensilsCrossed className="w-6 h-6" />, title: t('landing.recipe'), desc: t('landing.recipeDesc') },
               { icon: <Wallet className="w-6 h-6" />, title: t('landing.budget'), desc: t('landing.budgetDesc') },
               { icon: <Leaf className="w-6 h-6" />, title: t('landing.diet'), desc: t('landing.dietDesc') },

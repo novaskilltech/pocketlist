@@ -11,6 +11,8 @@ const fr: Record<string, string> = {
     'landing.featuresDesc': "Une suite d'outils pensés pour rendre votre organisation quotidienne plus sereine.",
     'landing.genius': 'Mode Genius',
     'landing.geniusDesc': "L'IA génère vos listes à partir de vos envies ou recettes.",
+    'landing.inspiration': "Qu'est-ce qu'on mange ?",
+    'landing.inspirationDesc': "L'IA vous suggère une recette de saison adaptée à la météo actuelle.",
     'landing.committee': 'Mode Comité',
     'landing.committeeDesc': 'Collaborez en temps réel avec toute la famille.',
     'landing.share': 'Partage WhatsApp',
