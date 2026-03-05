@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Plus, Trash2, Check, RotateCcw, ChevronRight, LogOut, User as UserIcon, Crown, Sparkles, Loader2, Share2, Globe, Search, UtensilsCrossed, Leaf, Repeat, Wallet, Copy, CloudSun } from 'lucide-react';
+import { Plus, Trash2, Check, RotateCcw, ChevronRight, LogOut, User as UserIcon, Crown, Sparkles, Loader2, Share2, Globe, Search, UtensilsCrossed, Leaf, Repeat, Wallet, Copy, CloudSun, Palette } from 'lucide-react';
 import { User, List, Item } from '../types';
 import { getEssentialsCategories } from '../constants';
 import { useTranslation, LOCALE_META, Locale } from '../i18n';
 import Confetti from './Confetti';
+import { THEMES, Theme, ThemeId, applyTheme, getStoredThemeId, storeThemeId } from '../themes';
 
 interface DashboardProps {
   user: User;
@@ -36,6 +37,14 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
   const [totalBudget, setTotalBudget] = useState<number>(0);
   const [showShareOptions, setShowShareOptions] = useState(false);
   const [copiedToClipboard, setCopiedToClipboard] = useState(false);
+  const [activeTheme, setActiveTheme] = useState<ThemeId>(() => getStoredThemeId());
+
+  // Apply theme on mount and change
+  useEffect(() => {
+    const theme = THEMES.find(t => t.id === activeTheme) || THEMES[0];
+    applyTheme(theme);
+    storeThemeId(activeTheme);
+  }, [activeTheme]);
 
   const DIETS = [
     { id: 'vegan', emoji: '🌱', labelKey: 'diet.vegan' },
@@ -413,6 +422,42 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
                   ) : (
                     <button onClick={handleUpgrade} className="w-full bg-chartreuse text-gunmetal py-3 rounded-2xl font-bold hover:brightness-110 transition-all flex items-center justify-center gap-2 shadow-lg shadow-chartreuse/20"><Crown className="w-5 h-5" /> {t('dash.upgrade')}</button>
                   )}
+                </div>
+              </div>
+              {/* Theme Picker */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-bold px-2 flex items-center gap-2" style={{ color: 'var(--theme-text)' }}>
+                  <Palette className="w-5 h-5" style={{ color: 'var(--theme-accent)' }} />
+                  Thème
+                </h3>
+                <div className="grid grid-cols-3 gap-3">
+                  {THEMES.map(theme => (
+                    <button
+                      key={theme.id}
+                      onClick={() => setActiveTheme(theme.id)}
+                      className="relative rounded-2xl overflow-hidden border-2 transition-all active:scale-95"
+                      style={{
+                        borderColor: activeTheme === theme.id ? 'var(--theme-accent)' : 'transparent',
+                        boxShadow: activeTheme === theme.id ? `0 0 18px ${theme.accent}55` : 'none'
+                      }}
+                    >
+                      {/* Theme preview gradient */}
+                      <div className="h-16 w-full" style={{ background: `linear-gradient(135deg, ${theme.bg} 0%, ${theme.accent}66 100%)` }} />
+                      <div className="px-2 py-1.5 text-center" style={{ backgroundColor: theme.bg }}>
+                        <p className="text-[10px] font-bold truncate" style={{ color: theme.text }}>
+                          {theme.emoji} {theme.name}
+                        </p>
+                        {theme.premium && !user.is_premium && (
+                          <span className="text-[9px]" style={{ color: theme.accent }}>Premium</span>
+                        )}
+                      </div>
+                      {activeTheme === theme.id && (
+                        <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--theme-accent)' }}>
+                          <Check className="w-2.5 h-2.5" style={{ color: 'var(--theme-accent-fg)' }} />
+                        </div>
+                      )}
+                    </button>
+                  ))}
                 </div>
               </div>
               <div className="space-y-4">

@@ -13,3 +13,20 @@
     display: none;
   }
 }
+
+/* Theme variables */
+:root {
+  --theme-bg: #00272B;
+  --theme-surface: rgba(255,255,255,0.05);
+  --theme-border: rgba(255,255,255,0.1);
+  --theme-accent: #E0FF4F;
+  --theme-accent-fg: #00272B;
+  --theme-text: #ffffff;
+  --theme-text-muted: rgba(255,255,255,0.4);
+  --theme-card-bg: rgba(255,255,255,0.04);
+}
+
+/* Theme transitions */
+*, *::before, *::after {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
