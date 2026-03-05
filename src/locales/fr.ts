@@ -92,6 +92,10 @@ const fr: Record<string, string> = {
     'dash.messenger': 'Messenger',
     'dash.facebook': 'Facebook',
     'dash.x': 'X (Twitter)',
+    'dash.inspirationBtn': "Qu'est-ce qu'on mange ?",
+    'dash.inspirationLoading': 'Analyse Météo & Recette...',
+    'dash.inspirationError': 'Impossible de trouver une recette pour le moment.',
+    'dash.weatherDefault': "Quelque chose de délicieux pour cette saison !",
     'cat.dairy': 'Produits Laitiers', 'cat.grocery': 'Épicerie', 'cat.hygiene': 'Hygiène', 'cat.produce': 'Fruits & Légumes', 'cat.bakery': 'Boulangerie',
     // Dairy
     'item.milk': 'Lait', 'item.butter': 'Beurre', 'item.salted_butter': 'Beurre salé', 'item.cheese': 'Fromage',

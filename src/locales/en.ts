@@ -56,6 +56,10 @@ const en: Record<string, string> = {
     'dash.messenger': 'Messenger',
     'dash.facebook': 'Facebook',
     'dash.x': 'X (Twitter)',
+    'dash.inspirationBtn': "What's cooking today?",
+    'dash.inspirationLoading': 'Analyzing Weather & Recipe...',
+    'dash.inspirationError': 'Cannot find a recipe right now.',
+    'dash.weatherDefault': "Something delicious for this season!",
     'cat.dairy': 'Dairy', 'cat.grocery': 'Grocery', 'cat.hygiene': 'Hygiene', 'cat.produce': 'Fruits & Vegetables', 'cat.bakery': 'Bakery',
     // Dairy
     'item.milk': 'Milk', 'item.butter': 'Butter', 'item.salted_butter': 'Salted butter', 'item.cheese': 'Cheese',

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Plus, Trash2, Check, RotateCcw, ChevronRight, LogOut, User as UserIcon, Crown, Sparkles, Loader2, Share2, Globe, Search, UtensilsCrossed, Leaf, Repeat, Wallet, Copy } from 'lucide-react';
+import { Plus, Trash2, Check, RotateCcw, ChevronRight, LogOut, User as UserIcon, Crown, Sparkles, Loader2, Share2, Globe, Search, UtensilsCrossed, Leaf, Repeat, Wallet, Copy, CloudSun } from 'lucide-react';
 import { User, List, Item } from '../types';
 import { getEssentialsCategories } from '../constants';
 import { useTranslation, LOCALE_META, Locale } from '../i18n';
@@ -20,6 +20,7 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
   const [newItemName, setNewItemName] = useState('');
   const [geniusMode, setGeniusMode] = useState(false);
   const [isGeniusLoading, setIsGeniusLoading] = useState(false);
+  const [isInspirationLoading, setIsInspirationLoading] = useState(false);
   const [activeEssentialCategory, setActiveEssentialCategory] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [error, setError] = useState('');
@@ -269,6 +270,49 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
     } finally { setIsGeniusLoading(false); }
   };
 
+  const handleInspiration = async () => {
+    if (!selectedList) return;
+    setIsInspirationLoading(true);
+    setError('');
+
+    const fetchInspiration = async (lat?: number, lon?: number) => {
+      try {
+        const res = await fetch('/api/inspiration', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ lat, lon })
+        });
+        const data = await res.json();
+
+        if (Array.isArray(data)) {
+          // Add items to server
+          for (const item of data) {
+            await fetch(`/api/lists/${selectedList.id}/items`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name: item.name, category: item.category })
+            });
+          }
+          // Refresh list items locally
+          const itemsRes = await fetch(`/api/lists/${selectedList.id}/items`);
+          const newItems = await itemsRes.json();
+          setItems(newItems);
+        }
+      } catch (e) {
+        setError(t('dash.inspirationError'));
+      } finally { setIsInspirationLoading(false); }
+    };
+
+    if (navigator.geolocation && window.isSecureContext) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => fetchInspiration(pos.coords.latitude, pos.coords.longitude),
+        () => fetchInspiration() // Fallback if denied or error
+      );
+    } else {
+      fetchInspiration(); // Fallback if not available
+    }
+  };
+
   const handleRecipe = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!recipeUrl.trim() || !selectedList) return;
@@ -455,7 +499,12 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
                   <UtensilsCrossed className="w-6 h-6" />
                   <span className="text-xs font-bold uppercase hidden sm:block">Recette</span>
                 </button>
-                <button disabled={isGeniusLoading} className="bg-chartreuse text-gunmetal p-3.5 rounded-2xl font-bold hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-chartreuse/20 disabled:opacity-50">
+                <button type="button" onClick={handleInspiration} disabled={isInspirationLoading || isGeniusLoading}
+                  className="p-3.5 rounded-2xl transition-all border active:scale-95 flex items-center gap-2 bg-sky-500/10 border-sky-500/20 text-sky-400 hover:bg-sky-500 hover:border-sky-500 hover:text-white"
+                  title={t('dash.inspirationBtn')}>
+                  {isInspirationLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <CloudSun className="w-6 h-6" />}
+                </button>
+                <button disabled={isGeniusLoading || isInspirationLoading} className="bg-chartreuse text-gunmetal p-3.5 rounded-2xl font-bold hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-chartreuse/20 disabled:opacity-50">
                   {isGeniusLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Plus className="w-6 h-6" />}
                 </button>
               </form>
