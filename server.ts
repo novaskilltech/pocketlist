@@ -67,7 +67,6 @@ db.exec(`
     is_recurrent BOOLEAN DEFAULT 0,
     FOREIGN KEY(user_id) REFERENCES users(id)
   );
-  try { db.exec("ALTER TABLE lists ADD COLUMN is_recurrent BOOLEAN DEFAULT 0"); } catch (e) {}
   CREATE TABLE IF NOT EXISTS list_members (
     list_id TEXT NOT NULL,
     user_id TEXT NOT NULL,
@@ -98,6 +97,7 @@ db.exec(`
 // Run migrations
 try { db.exec("ALTER TABLE items ADD COLUMN quantity TEXT"); } catch (e) { }
 try { db.exec("ALTER TABLE items ADD COLUMN price REAL"); } catch (e) { }
+try { db.exec("ALTER TABLE lists ADD COLUMN is_recurrent BOOLEAN DEFAULT 0"); } catch (e) { }
 
 async function startServer() {
   const app = express();
@@ -314,7 +314,7 @@ async function startServer() {
         }
       });
 
-      const items = JSON.parse(response.text() || '[]');
+      const items = JSON.parse(response.text || '[]');
       if (items.length === 0) return res.status(400).json({ error: "Aucun ingrédient trouvé" });
 
       res.json(items);
