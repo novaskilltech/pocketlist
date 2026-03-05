@@ -261,6 +261,69 @@ async function startServer() {
     res.json({ success: true });
   });
 
+  app.post("/api/inspiration", authGuard, async (req: any, res: any) => {
+    try {
+      const { lat, lon } = req.body;
+      let weatherContext = "Quelque chose de délicieux !";
+
+      if (lat && lon) {
+        try {
+          const fetch = (await import('node-fetch')).default;
+          const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+          if (weatherRes.ok) {
+            const data = await weatherRes.json() as any;
+            const temp = data.current_weather.temperature;
+            const code = data.current_weather.weathercode;
+            const isRaining = [51, 53, 55, 61, 63, 65, 80, 81, 82].includes(code);
+            const isSnowing = [71, 73, 75, 85, 86].includes(code);
+
+            const month = new Date().getMonth();
+            const season = (month >= 2 && month <= 4) ? "printemps" : (month >= 5 && month <= 7) ? "été" : (month >= 8 && month <= 10) ? "automne" : "hiver";
+
+            weatherContext = `Il fait ${temp}°C. Les conditions climatiques indiquent : ${isRaining ? 'pluie' : isSnowing ? 'neige' : 'temps clair/nuageux'}. Nous sommes en ${season}.`;
+          }
+        } catch (e) {
+          console.error("Weather fetch failed", e);
+        }
+      }
+
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) return res.status(500).json({ error: "GEMINI_API_KEY not configured on server" });
+      const ai = new GoogleGenAI({ apiKey });
+
+      const prompt = `L'utilisateur demande "Qu'est-ce qu'on mange aujourd'hui ?". Voici le contexte météo/saison actuel à sa position (si disponible): "${weatherContext}".
+      Propose UNE SEULE recette originale, réconfortante ou rafraîchissante, parfaitement adaptée à cette météo.
+      Retourne UNIQUEMENT une liste d'ingrédients au format JSON avec la structure exacte: 
+      [{"name": "Nom de l'ingrédient", "category": "Catégorie", "price": "1.50", "quantity": "1 unité"}]
+      Catégories valides : Produits Laitiers, Épicerie, Fruits & Légumes, Boulangerie, Viandes & Poissons.
+      Pense à ajouter comme PREMIER élément de la liste, le nom du plat proposé sous cette forme : {"name": "🥘 Plat : [Nom de ta recette]", "category": "Épicerie", "price": "0", "quantity": "1"}`;
+
+      const response = await ai.models.generateContent({
+        model: "gemini-2.0-flash",
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: { name: { type: Type.STRING }, category: { type: Type.STRING }, quantity: { type: Type.STRING }, price: { type: Type.STRING } },
+              required: ["name", "category"]
+            }
+          }
+        }
+      });
+
+      const items = JSON.parse(response.text() || '[]');
+      if (items.length === 0) return res.status(400).json({ error: "Aucun ingrédient trouvé" });
+
+      res.json(items);
+    } catch (err: any) {
+      console.error("Inspiration API error:", err);
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   // Genius AI Proxy — appelle Gemini côté serveur
   app.post("/api/genius", authGuard, async (req: any, res) => {
     const { prompt, listId, locale, diet } = req.body;
